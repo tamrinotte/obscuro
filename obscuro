@@ -1,0 +1,173 @@
+#!/usr/bin/python3
+
+# LIBRARIES
+from os import path, walk, listdir
+from cryptography.fernet import Fernet
+from sys import argv
+
+# VARIABLES
+helpOpts = ["--help", "-help", "-?", "-h"]
+encOpts = ["-e", "--encrypt"]
+decOpts = ["-d", "--decrypt"]
+recurOpts = ["-r", "--recursive", "-recursive"]
+recurChoice = None
+listOfTargetFolPs = []
+listOfTargetFilPs = []
+helpTxt = f'\033[1m' + "NAME" + '\033[0m' + "\n\n\t" + 'obscuro - A command line encryption tool that can encrypt and decrypt files in the target path by rewriting the file\'s binary code.\n\n' + '\033[1m' + 'USAGE' + '\033[0m'+ "\n\n\t" + 'obscuro [OPTION] [PATH]' + "\n\n" + '\033[1m' + 'DESCRIPTION' + '\033[0m' +"\n\n\t" + "Encrypt and decrypt files by rewriting their binary code.\n\n\t" + f'{encOpts[0]}, {encOpts[1]} \n\t\tUse this option to encrypt a particular file or all the files in the target directory. Subdirectories are skipped.' + "\n\n\t" + f'{decOpts[0]}, {decOpts[1]}\n\t\t' + "Use this option to decrypt a particular file or all the files in the target directory. Subdirectories are skipped." + "\n\n\t" + f'{recurOpts[0]}, {recurOpts[1]}' + "\n\t\t" + f'Use this option to encrypt and decrypt files recursively.' + "\n\n" + '\033[1m' + 'EXAMPLES' + '\033[0m' + "\n\t" + f'obscuro -e <target_path>' + "\n\t" + f'obscuro -d <key_path> <target_path>' + "\n\t" + f'obscuro -r -e <target_path>' + "\n\t" + f'obscuro -d -r <key_path> <target_path>' + "\n\t"
+
+# FUNCTIONS
+def encrypt(recurChoice, targetP):
+    """A function that encrypts files"""
+    if recurChoice == False:
+
+        if path.isfile(targetP) == True:
+            key = Fernet.generate_key()
+
+            with open("the_key.key", "wb") as theKey: # wb -> write binary
+                theKey.write(key)
+
+            with open(targetP, "rb") as theFile: # rb -> read binary
+                contents = theFile.read()
+                contentsEncrypted = Fernet(key).encrypt(contents)
+                with open(targetP, "wb") as theFile:
+                    theFile.write(contentsEncrypted)
+
+            print(f'File {targetP} is encrypted')
+
+        else:
+            key = Fernet.generate_key()
+
+            with open("the_key.key", "wb") as theKey: # wb -> write binary
+                theKey.write(key)
+
+            for file in listdir(targetP):
+                if file == "obscuro" or file == "the_key.key":
+                    continue
+                if path.isfile(f'{targetP}/{file}') == True:
+                    listOfTargetFilPs.append(f'{targetP}/{file}')
+
+            for file in listOfTargetFilPs:
+                with open(file, "rb") as theFile: # rb -> read binary
+                    contents = theFile.read()
+                    contentsEncrypted = Fernet(key).encrypt(contents)
+                    with open(file, "wb") as theFile:
+                        theFile.write(contentsEncrypted)
+
+            print(f'All the files in the target path are encrypted.\nList of encrypted files = {listOfTargetFilPs}')
+
+    else:
+        if path.isfile(targetP) == False:
+            key = Fernet.generate_key()
+
+            with open("the_key.key", "wb") as theKey: # wb -> write binary
+                theKey.write(key)
+
+            for currentPath, dir, file in walk(targetP):
+                file = f'{currentPath}'
+                listOfTargetFolPs.append(file)
+
+            for p in listOfTargetFolPs:
+                for f in listdir(p):
+                    target = f'{p}/{f}'
+                    if path.isfile(target) == True:
+                        listOfTargetFilPs.append(target)
+
+            for tf in listOfTargetFilPs:
+                with open(tf, "rb") as theFile: # rb -> read binary
+                    contents = theFile.read()
+                    contentsEncrypted = Fernet(key).encrypt(contents)
+                    with open(tf, "wb") as theFile:
+                        theFile.write(contentsEncrypted)
+
+            print(f'All the files in the target path are encrypted recursively.\nList of encrypted files = {listOfTargetFilPs}')
+
+        else:
+            print(f'You can\'t use recursive option on files.')
+
+def decrypt(recurChoice, keyP, targetP):
+    """A function to decript files"""
+    if recurChoice == False:
+        if path.isfile(targetP) == True:
+            with open(keyP, "rb") as key:
+                secretKey = key.read()
+            with open(targetP, "rb") as theFile: # rb -> read binary
+                contents = theFile.read()
+                contentsDecrypted = Fernet(secretKey).decrypt(contents)
+                with open(targetP, "wb") as theFile:
+                    theFile.write(contentsDecrypted)
+
+        else:
+            with open(keyP, "rb") as key:
+                secretKey = key.read()
+
+            for file in listdir(targetP):
+                if file == "obscuro" or file == "the_key.key":
+                    continue
+                if path.isfile(f'{targetP}/{file}') == True:
+                    listOfTargetFilPs.append(f'{targetP}/{file}')
+
+            for file in listOfTargetFilPs:
+                with open(file, "rb") as theFile: # rb -> read binary
+                    contents = theFile.read()
+                    contentsDecrypted = Fernet(secretKey).decrypt(contents)
+                    with open(file, "wb") as theFile:
+                        theFile.write(contentsDecrypted)
+
+            print(f'All the files in the target path are decrypted.\nList of decrypted files = {listOfTargetFilPs}')
+
+    else:
+        if path.isfile(targetP) == False:
+            with open(keyP, "rb") as key:
+                secretKey = key.read()
+
+            for currentPath, dir, file in walk(targetP):
+                file = f'{currentPath}'
+                listOfTargetFolPs.append(file)
+
+            for p in listOfTargetFolPs:
+                for f in listdir(p):
+                    target = f'{p}/{f}'
+                    if path.isfile(target) == True:
+                        listOfTargetFilPs.append(target)
+
+            for tf in listOfTargetFilPs:
+                with open(tf, "rb") as theFile: # rb -> read binary
+                    contents = theFile.read()
+                    contentsDecrypted = Fernet(secretKey).decrypt(contents)
+                    with open(tf, "wb") as theFile:
+                        theFile.write(contentsDecrypted)
+
+            print(f'All the files in the target path are decrypted recursively.\nList of decrypted files = {listOfTargetFilPs}')
+
+if argv[1].lower().strip() in helpOpts:
+    print(helpTxt)
+
+else:
+    if recurOpts[0] in argv or recurOpts[1] in argv or encOpts[0] in argv or encOpts[1] in argv or decOpts[0] in argv or decOpts[1] in argv:
+
+        if recurOpts[0] in argv or recurOpts[1] in argv:
+            recurChoice = True
+        else:
+            recurChoice = False
+
+        if encOpts[0] in argv or encOpts[1] in argv:
+            targetP = argv[len(argv)-1]
+
+            if path.exists(targetP) == True:
+                encrypt(recurChoice, targetP)
+            else:
+                print(f'You didn\'t entered a valid path. Type obscuro {helpOpts[0]} to see the help page.')
+
+        elif decOpts[0] in argv or decOpts[0] in argv:
+            targetP = argv[len(argv)-1]
+            keyP = argv[len(argv)-2]
+
+            if path.exists(targetP) == True and path.exists(keyP) == True :
+                decrypt(recurChoice, keyP, targetP)
+
+            else:
+                print(f'You didn\'t entered a valid path. Either key path or taget path isn\'t exist. Type obscuro {helpOpts[0]} to see the help page.')
+
+
+    else:
+        print(f'You didn\'t entered a valid option. Type obscuro {helpOpts[0]} to see the help page.')
