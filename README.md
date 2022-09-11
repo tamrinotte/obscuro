@@ -2,7 +2,7 @@
 
 ![ObscuroLogo](https://cdn.pixabay.com/photo/2017/07/26/11/47/magic-2541458_960_720.jpg)
 
-Obscuro is a command line tool that you can use to encrypt or decrypt particular files or folders. You can also encrypt or decrypt folders recursively by using the "--recursive" option. Otherwise, subdirectories will be skipped and only the files in the target folder will be encrypted. If you have group of friends you can encrypt a file or folder multiple times and decrypt it by the keys in the right order.
+Obscuro is a command line tool that you can use to encrypt or decrypt particular files or folders. You can also encrypt or decrypt folders recursively by using the "--recursive" option. Otherwise, subdirectories will be skipped and only the files in the target folder will be encrypted. If you have group of friends you can encrypt a file or folder multiple times and decrypt it by using the keys in the right order.
 
 ## INSTALLATION 
 1) ```pip3 install cryptography```
