@@ -19,7 +19,7 @@ Obscuro is a command line tool that you can use to encrypt or decrypt particular
         Use this option to decrypt a particular file or all the files in the target directory. Subdirectories are skipped.
 
     -r, --recursive
-        Use this option to encrypt and decrypt files recursively.
+        Use this option to encrypt or decrypt files recursively.
 
 ## EXAMPLES
     obscuro -e <target_path>
