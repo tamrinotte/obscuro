@@ -85,7 +85,7 @@ def encrypt(recurChoice, targetP):
             print(f'You can\'t use recursive option on files.')
 
 def decrypt(recurChoice, keyP, targetP):
-    """A function to decript files"""
+    """A function that decrypts files"""
     if recurChoice == False:
         if path.isfile(targetP) == True:
             with open(keyP, "rb") as key:
